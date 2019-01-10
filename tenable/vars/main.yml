@@ -1,0 +1,16 @@
+---
+
+# The installation package file name
+nessus_agent_file_name: "NessusAgent-{{ nessus_agent_version }}"
+
+# The Agent installation path
+nessus_agent_install_root: "/Library/NessusAgent/"
+
+# The Agent service name
+nessus_agent_service_name: "nessus-service"
+
+# The Agent command line tool
+nessus_agent_cli_tool: "{{ nessus_agent_install_root }}/run/sbin/nessuscli"
+
+# The service domain (launchctl)
+nessus_agent_service_domain: "com.tenablesecurity.nessusagent"

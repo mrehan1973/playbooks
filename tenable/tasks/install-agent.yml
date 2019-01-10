@@ -1,0 +1,35 @@
+---
+
+- name: Download Nessus Agent
+  get_url:
+    url: "{{ nessus_agent_download_url }}"
+    dest: "{{ nessus_agent_temp_dir }}/{{ nessus_agent_file_name }}.dmg"
+    checksum: "{{ nessus_agent_file_checksum }}"
+
+- name: Mount the installer image
+  command: "hdiutil attach -mountpoint {{ nessus_agent_mount_point }}/{{ nessus_agent_file_name }} {{ nessus_agent_temp_dir }}/{{ nessus_agent_file_name }}.dmg"
+
+- name: Perform Agent installation
+  command: "installer -allowUntrusted -verboseR -pkg {{ nessus_agent_mount_point }}/{{ nessus_agent_file_name }}/Install\\ Nessus\\ Agent.pkg -target /"
+
+- name: Copy deployment version file
+  template:
+    src: "agent-version.j2"
+    dest: "{{ nessus_agent_install_root }}/agent-version"
+
+- name: Unmount the installer image
+  command: "hdiutil unmount {{ nessus_agent_mount_point }}/{{ nessus_agent_file_name }}"
+
+- name: Cleanup
+  file:
+    path: "{{ nessus_agent_temp_dir }}/{{ nessus_agent_file_name }}.dmg"
+    state: absent
+
+- name: Register Agent process status
+  shell: "ps ax | grep -v grep | grep {{ nessus_agent_service_name }}"
+  register: agent_process
+  ignore_errors: false
+
+- debug:
+    msg: "Nessus Agent seems to be running"
+  when: agent_process.stdout.find("{{ nessus_agent_service_name }}") != -1

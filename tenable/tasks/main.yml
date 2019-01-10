@@ -1,0 +1,27 @@
+---
+
+- set_fact:
+    is_installed: false
+
+- name: Check if agent is installed and register launchctl output
+  command: "launchctl list {{ nessus_agent_service_domain }}"
+  changed_when: false
+  ignore_errors: yes
+  register: "launchctl_response"
+
+- name: Update Agent is installed flag
+  set_fact:
+    is_installed: true
+  when: launchctl_response.rc == 0
+
+- debug:
+    msg: "Agent is already installed: {{ is_installed }}"
+
+- include: uninstall-agent.yml
+  when: nessus_agent_uninstall and is_installed
+
+- include: install-agent.yml
+  when: is_installed != true
+
+- include: link-agent.yml
+  when: nessus_agent_link
