@@ -1,0 +1,14 @@
+---
+
+- name: Disable Agent
+  command: "launchctl remove {{ nessus_agent_service_domain }}"
+
+- name: Ensure the Agent install dir has been deleted
+  file:
+    path: "/Library/NessusAgent"
+    state: absent
+
+- name: Ensure the Agent config has been removed
+  file:
+    path: "/Library/LaunchDaemons/com.tenablesecurity.nessusagent.plist"
+    state: absent
